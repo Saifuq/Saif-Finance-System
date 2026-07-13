@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAIF FINANCE SYSTEM — Macro Terminal Deck</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --indigo: #4f46e5;
+            --teal: #0d9488;
+            --amber: #d97706;
+            --rose: #e11d48;
+            --emerald: #059669;
+        }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: #ffffff; color: #1e293b; }
+        h1, h2, h3, .section-title { font-family: Georgia, 'Times New Roman', serif; }
+        .font-mono { font-family: 'SF Mono', 'Fira Code', monospace; }
+        
+        /* Ticker animation */
+        @keyframes ticker-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .ticker-strip { animation: ticker-scroll 30s linear infinite; }
+        .ticker-strip:hover { animation-play-state: paused; }
+        
+        /* Pulse animation for LIVE badge */
+        @keyframes pulse-live {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .live-pulse { animation: pulse-live 1.5s ease-in-out infinite; }
+        
+        /* Card hover */
+        .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        
+        /* Flash animation for rate changes */
+        @keyframes flash-green { 0%,100%{ background: transparent; } 50%{ background: rgba(5,150,105,0.1); } }
+        @keyframes flash-red { 0%,100%{ background: transparent; } 50%{ background: rgba(225,29,72,0.1); } }
+        .flash-up { animation: flash-green 0.5s ease; }
+        .flash-down { animation: flash-red 0.5s ease; }
+        
+        /* Scroll reveal */
+        .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        
+        /* Tab styling */
+        .tab-active { background: #4f46e5; color: white; }
+        .tab-inactive { background: #f1f5f9; color: #475569; }
+        .tab-inactive:hover { background: #e2e8f0; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { height: 4px; width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        
+        /* Progress bar */
+        .cycle-bar { height: 8px; border-radius: 4px; background: #e2e8f0; overflow: hidden; }
+        .cycle-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+        
+        /* Table sorting */
+        .sort-header { cursor: pointer; user-select: none; }
+        .sort-header:hover { background: #f1f5f9; }
+    </style>
+</head>
+<body class="bg-white min-h-screen">
+
+<!-- ==================== STICKY HEADER ==================== -->
+<header id="main-header" class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
+    <div class="max-w-[1600px] mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        <!-- Left: Logo -->
+        <div class="flex items-center gap-3 shrink-0">
+            <div class="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center">
+                <i data-lucide="trending-up" class="w-5 h-5 text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold text-slate-900 leading-tight" style="font-family:Georgia,serif;">SAIF FINANCE SYSTEM</h1>
+                <p class="text-xs text-slate-500">Global Macro Terminal · Ray Dalio Framework</p>
+            </div>
+        </div>
+        
+        <!-- Center: Live Ticker -->
+        <div class="flex-1 mx-4 overflow-hidden rounded-md bg-slate-50 border border-slate-100 hidden md:block">
+            <div class="flex whitespace-nowrap ticker-strip" id="ticker-container">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+        
+        <!-- Right: Contact + Live -->
+        <div class="flex items-center gap-4 shrink-0">
+            <div class="hidden lg:flex flex-col text-right text-xs text-slate-500">
+                <span>farooquimohammedsaifuddin@gmail.com</span>
+                <span>+91 8766696166</span>
+            </div>
+            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 live-pulse"></span>
+                <span class="text-xs font-semibold text-emerald-700">LIVE</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- ==================== HERO KPI STRIP ==================== -->
+<section class="bg-gradient-to-b from-slate-50 to-white py-6 border-b border-slate-100">
+    <div class="max-w-[1600px] mx-auto px-4">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4" id="kpi-strip">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+</section>
+
+<!-- ==================== NAVIGATION TABS ==================== -->
+<nav id="nav-tabs" class="sticky top-[73px] z-40 bg-white border-b border-slate-100 shadow-sm">
+    <div class="max-w-[1600px] mx-auto px-4 py-3">
+        <div class="flex gap-2 overflow-x-auto pb-1">
+            <button onclick="scrollToSection('overview')" class="tab-btn tab-active px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap">Overview</button>
+            <button onclick="scrollToSection('dalio')" class="tab-btn tab-inactive px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap">Ray Dalio Model</button>
+            <button onclick="scrollToSection('supply-demand')" class="tab-btn tab-inactive px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap">Supply & Demand</button>
+            <button onclick="scrollToSection('dcf')" class="tab-btn tab-inactive px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap">DCF Calculator</button>
+            <button onclick="scrollToSection('currency-lab')" class="tab-btn tab-inactive px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap">Currency Lab</button>
+            <button onclick="scrollToSection('india')" class="tab-btn tab-inactive px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap">India Playbook</button>
+        </div>
+    </div>
+</nav>
+
+<!-- ==================== SECTION: OVERVIEW (placeholder target) ==================== -->
+<section id="overview"></section>
+
+<!-- ==================== SECTION: RAY DALIO MODEL ==================== -->
+<section id="dalio" class="py-16 px-4">
+    <div class="max-w-[1600px] mx-auto">
+        <div class="text-center mb-12 reveal">
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Ray Dalio's Economic Machine</h2>
+            <p class="text-lg text-slate-500 italic" style="font-family:Georgia,serif;">Bridgewater Associates Framework Applied to Top-10 Global Economies</p>
+        </div>
+        
+        <!-- Three Forces -->
+        <div class="grid md:grid-cols-3 gap-6 mb-16 reveal">
+            <div class="card-hover bg-white border border-slate-200 rounded-xl p-6 text-center">
+                <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-emerald-50 flex items-center justify-center">
+                    <i data-lucide="trending-up" class="w-7 h-7 text-emerald-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">Productivity Growth</h3>
+                <p class="text-sm text-slate-600">Long-term driver. Innovation, education, and efficiency gains compound over decades, raising living standards 2-3% annually.</p>
+                <span class="inline-block mt-3 text-xs font-semibold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700">Long-Term Trend</span>
+            </div>
+            <div class="card-hover bg-white border border-slate-200 rounded-xl p-6 text-center">
+                <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-indigo-50 flex items-center justify-center">
+                    <i data-lucide="activity" class="w-7 h-7 text-indigo-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">Short-Term Debt Cycle</h3>
+                <p class="text-sm text-slate-600">5-8 year oscillations driven by credit expansion and contraction. Central banks manage via interest rates.</p>
+                <span class="inline-block mt-3 text-xs font-semibold px-3 py-1 rounded-full bg-indigo-50 text-indigo-700">5-8 Year Cycle</span>
+            </div>
+            <div class="card-hover bg-white border border-slate-200 rounded-xl p-6 text-center">
+                <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-amber-50 flex items-center justify-center">
+                    <i data-lucide="mountain" class="w-7 h-7 text-amber-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">Long-Term Debt Cycle</h3>
+                <p class="text-sm text-slate-600">75-100 year supercycles. Debt accumulates to unsustainable levels, leading to restructuring or currency devaluation.</p>
+                <span class="inline-block mt-3 text-xs font-semibold px-3 py-1 rounded-full bg-amber-50 text-amber-700">75-100 Year Cycle</span>
+            </div>
+        </div>
+        
+        <!-- Debt Cycle Phase Tracker -->
+        <div class="mb-16 reveal">
+            <h3 class="text-2xl font-bold text-slate-900 mb-6 text-center">Debt Cycle Phase Tracker</h3>
+            <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <div class="min-w-[700px] p-6 space-y-4" id="cycle-tracker">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dalio Principles -->
+        <div class="reveal">
+            <h3 class="text-2xl font-bold text-slate-900 mb-6 text-center">Key Principles</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="card-hover border-l-4 border-indigo-500 bg-slate-50 rounded-r-xl p-5">
+                    <p class="text-slate-700 italic">"Credit is simply the promise to pay back borrowed money. It creates spending power today at the cost of spending power tomorrow."</p>
+                    <span class="text-xs text-slate-500 mt-2 block">— Ray Dalio, Principles for Navigating Big Debt Crises</span>
+                </div>
+                <div class="card-hover border-l-4 border-teal-500 bg-slate-50 rounded-r-xl p-5">
+                    <p class="text-slate-700 italic">"Debt crises are inevitable but manageable. The key is whether debts are denominated in a currency the debtor can print."</p>
+                    <span class="text-xs text-slate-500 mt-2 block">— Ray Dalio, The Changing World Order</span>
+                </div>
+                <div class="card-hover border-l-4 border-amber-500 bg-slate-50 rounded-r-xl p-5">
+                    <p class="text-slate-700 italic">"The economy is like a machine. Understanding how it works gives you the power to position yourself well regardless of what happens."</p>
+                    <span class="text-xs text-slate-500 mt-2 block">— Ray Dalio, How The Economic Machine Works</span>
+                </div>
+                <div class="card-hover border-l-4 border-rose-500 bg-slate-50 rounded-r-xl p-5">
+                    <p class="text-slate-700 italic">"Inflation and deflation cycles are driven by credit. When credit expands, spending rises; when it contracts, spending falls."</p>
+                    <span class="text-xs text-slate-500 mt-2 block">— Ray Dalio, Big Debt Crises</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION: SUPPLY & DEMAND ==================== -->
+<section id="supply-demand" class="py-16 px-4 bg-slate-50">
+    <div class="max-w-[1600px] mx-auto">
+        <div class="text-center mb-10 reveal">
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Global Supply & Demand Analysis</h2>
+            <p class="text-lg text-slate-500 italic" style="font-family:Georgia,serif;">Price vs Quantity dynamics across major economies — interactive nation selector</p>
+        </div>
+        
+        <!-- Nation Selector -->
+        <div class="flex flex-wrap justify-center gap-2 mb-8 reveal">
+            <button onclick="selectNation('India')" class="nation-btn px-4 py-2 rounded-full text-sm font-medium bg-indigo-600 text-white transition-all">🇮🇳 India</button>
+            <button onclick="selectNation('USA')" class="nation-btn px-4 py-2 rounded-full text-sm font-medium bg-slate-100 text-slate-700 transition-all hover:bg-slate-200">🇺🇸 USA</button>
+            <button onclick="selectNation('China')" class="nation-btn px-4 py-2 rounded-full text-sm font-medium bg-slate-100 text-slate-700 transition-all hover:bg-slate-200">🇨🇳 China</button>
+            <button onclick="selectNation('Japan')" class="nation-btn px-4 py-2 rounded-full text-sm font-medium bg-slate-100 text-slate-700 transition-all hover:bg-slate-200">🇯🇵 Japan</button>
+            <button onclick="selectNation('UK')" class="nation-btn px-4 py-2 rounded-full text-sm font-medium bg-slate-100 text-slate-700 transition-all hover:bg-slate-200">🇬🇧 UK</button>
+            <button onclick="selectNation('Eurozone')" class="nation-btn px-4 py-2 rounded-full text-sm font-medium bg-slate-100 text-slate-700 transition-all hover:bg-slate-200">🇪🇺 Eurozone</button>
+            <button onclick="selectNation('Saudi Arabia')" class="nation-btn px-4 py-2 rounded-full text-sm font-medium bg-slate-100 text-slate-700 transition-all hover:bg-slate-200">🇸🇦 Saudi Arabia</button>
+            <button onclick="selectNation('Kuwait')" class="nation-btn px-4 py-2 rounded-full text-sm font-medium bg-slate-100 text-slate-700 transition-all hover:bg-slate-200">🇰🇼 Kuwait</button>
+        </div>
+        
+        <!-- Chart -->
+        <div class="bg-white border border-slate-200 rounded-xl p-6 mb-6 reveal">
+            <canvas id="supplyDemandChart" height="100"></canvas>
+        </div>
+        
+        <!-- Insights Grid -->
+        <div class="grid md:grid-cols-3 gap-4 reveal" id="sd-insights">
+            <div class="bg-white border border-slate-200 rounded-xl p-5 text-center">
+                <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Current Equilibrium Price</p>
+                <p class="text-2xl font-bold text-indigo-600 font-mono" id="eq-price">$142.50</p>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-5 text-center">
+                <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Market Pressure</p>
+                <p class="text-2xl font-bold text-amber-600" id="market-pressure">Demand-Pull Inflation</p>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-5 text-center">
+                <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Policy Recommendation</p>
+                <p class="text-2xl font-bold text-teal-600" id="policy-rec">Tighten Monetary</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION: DCF CALCULATOR ==================== -->
+<section id="dcf" class="py-16 px-4">
+    <div class="max-w-[1600px] mx-auto">
+        <div class="text-center mb-10 reveal">
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Discounted Cash Flow Model</h2>
+            <p class="text-lg text-slate-500 italic" style="font-family:Georgia,serif;">Sovereign & Corporate Asset Valuation Engine</p>
+        </div>
+        
+        <div class="grid lg:grid-cols-2 gap-8 reveal">
+            <!-- Inputs -->
+            <div class="bg-white border border-slate-200 rounded-xl p-6">
+                <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+                    <i data-lucide="calculator" class="w-5 h-5 text-indigo-600"></i> Model Inputs
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Free Cash Flow Year 1 ($)</label>
+                        <input type="number" id="dcf-fcf" value="500000" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono" oninput="calculateDCF()">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">FCF Growth Rate (%)</label>
+                        <input type="number" id="dcf-growth" value="8" step="0.5" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono" oninput="calculateDCF()">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Terminal Growth Rate (%)</label>
+                        <input type="number" id="dcf-terminal" value="3" step="0.5" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono" oninput="calculateDCF()">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Discount Rate / WACC (%)</label>
+                        <input type="number" id="dcf-wacc" value="10" step="0.5" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono" oninput="calculateDCF()">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Projection Years</label>
+                        <input type="number" id="dcf-years" value="5" min="1" max="10" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono" oninput="calculateDCF()">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Output -->
+            <div class="bg-white border border-slate-200 rounded-xl p-6">
+                <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5 text-indigo-600"></i> Valuation Output
+                </h3>
+                <div class="overflow-x-auto mb-4">
+                    <table class="w-full text-sm" id="dcf-table">
+                        <thead>
+                            <tr class="border-b border-slate-200">
+                                <th class="text-left py-2 text-slate-500 font-medium">Year</th>
+                                <th class="text-right py-2 text-slate-500 font-medium">FCF</th>
+                                <th class="text-right py-2 text-slate-500 font-medium">Discount Factor</th>
+                                <th class="text-right py-2 text-slate-500 font-medium">PV of FCF</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dcf-tbody"></tbody>
+                    </table>
+                </div>
+                <div class="space-y-2 border-t border-slate-200 pt-4">
+                    <div class="flex justify-between text-sm"><span class="text-slate-600">Terminal Value</span><span class="font-mono font-semibold" id="dcf-tv">—</span></div>
+                    <div class="flex justify-between text-sm"><span class="text-slate-600">PV of Terminal Value</span><span class="font-mono font-semibold" id="dcf-pvtv">—</span></div>
+                    <div class="flex justify-between text-lg border-t border-slate-200 pt-3 mt-3"><span class="font-bold text-slate-900">Enterprise Value</span><span class="font-mono font-bold text-indigo-600 text-xl" id="dcf-ev">—</span></div>
+                </div>
+                <div class="mt-6">
+                    <canvas id="dcfChart" height="120"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION: CURRENCY LAB ==================== -->
+<section id="currency-lab" class="py-16 px-4 bg-slate-50">
+    <div class="max-w-[1600px] mx-auto">
+        <div class="text-center mb-10 reveal">
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Real-Time Currency Conversion Engine</h2>
+            <p class="text-lg text-slate-500 italic" style="font-family:Georgia,serif;">Live rate simulation — 10 currencies against USD base</p>
+        </div>
+        
+        <div class="grid lg:grid-cols-2 gap-8 reveal">
+            <!-- Conversion Calculator -->
+            <div class="bg-white border border-slate-200 rounded-xl p-6">
+                <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+                    <i data-lucide="repeat" class="w-5 h-5 text-indigo-600"></i> Currency Converter
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">From</label>
+                        <select id="conv-from" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                            <option value="USD">🇺🇸 USD — US Dollar</option>
+                            <option value="INR">🇮🇳 INR — Indian Rupee</option>
+                            <option value="GBP">🇬🇧 GBP — British Pound</option>
+                            <option value="EUR">🇪🇺 EUR — Euro</option>
+                            <option value="JPY">🇯🇵 JPY — Japanese Yen</option>
+                            <option value="CNY">🇨🇳 CNY — Chinese Yuan</option>
+                            <option value="SAR">🇸🇦 SAR — Saudi Riyal</option>
+                            <option value="KWD">🇰🇼 KWD — Kuwaiti Dinar</option>
+                            <option value="ILS">🇮🇱 ILS — Israeli Shekel</option>
+                            <option value="DEM">🇩🇪 DEM — Deutsche Mark</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Amount</label>
+                        <input type="number" id="conv-amount" value="1000" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">To</label>
+                        <select id="conv-to" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                            <option value="INR">🇮🇳 INR — Indian Rupee</option>
+                            <option value="USD">🇺🇸 USD — US Dollar</option>
+                            <option value="GBP">🇬🇧 GBP — British Pound</option>
+                            <option value="EUR">🇪🇺 EUR — Euro</option>
+                            <option value="JPY">🇯🇵 JPY — Japanese Yen</option>
+                            <option value="CNY">🇨🇳 CNY — Chinese Yuan</option>
+                            <option value="SAR">🇸🇦 SAR — Saudi Riyal</option>
+                            <option value="KWD">🇰🇼 KWD — Kuwaiti Dinar</option>
+                            <option value="ILS">🇮🇱 ILS — Israeli Shekel</option>
+                            <option value="DEM">🇩🇪 DEM — Deutsche Mark</option>
+                        </select>
+                    </div>
+                    <button onclick="convertCurrency()" class="w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors">CONVERT</button>
+                    <div class="text-center p-4 bg-slate-50 rounded-lg border border-slate-200">
+                        <p class="text-sm text-slate-500">Conversion Result</p>
+                        <p class="text-3xl font-bold text-indigo-600 font-mono mt-1" id="conv-result">95,120.00 INR</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Live Rates Table -->
+            <div class="bg-white border border-slate-200 rounded-xl p-6">
+                <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+                    <i data-lucide="globe" class="w-5 h-5 text-indigo-600"></i> Live Rates vs USD
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-200">
+                                <th class="text-left py-2 text-slate-500 font-medium">Currency</th>
+                                <th class="text-right py-2 text-slate-500 font-medium">Rate</th>
+                                <th class="text-right py-2 text-slate-500 font-medium">24h Chg</th>
+                                <th class="text-center py-2 text-slate-500 font-medium">Trend</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rates-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION: FORECAST CHARTS ==================== -->
+<section id="forecast" class="py-16 px-4">
+    <div class="max-w-[1600px] mx-auto">
+        <div class="text-center mb-10 reveal">
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Currency Price Future Forecasting Model</h2>
+            <p class="text-lg text-slate-500 italic" style="font-family:Georgia,serif;">Autoregressive Projection Pathways — Multi-Quarter Expected Value</p>
+        </div>
+        
+        <div class="grid lg:grid-cols-1 gap-8 reveal">
+            <div class="bg-white border border-slate-200 rounded-xl p-6">
+                <h3 class="text-base font-bold text-slate-700 mb-4">Quarterly Forecast — INR, JPY, EUR, GBP, CNY vs USD</h3>
+                <canvas id="forecastChart" height="80"></canvas>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-6">
+                <h3 class="text-base font-bold text-slate-700 mb-4">Global Macro Composite Score (0-100)</h3>
+                <canvas id="macroScoreChart" height="60"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION: INDIA PLAYBOOK ==================== -->
+<section id="india" class="py-16 px-4 bg-slate-50">
+    <div class="max-w-[1600px] mx-auto">
+        <div class="text-center mb-10 reveal">
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">🇮🇳 India's Path to Global Economic Dominance</h2>
+            <p class="text-lg text-slate-500 italic" style="font-family:Georgia,serif;">Strategic Framework for Building Economic Muscle — Saif Finance System Analysis</p>
+        </div>
+        
+        <div class="grid lg:grid-cols-2 gap-8 reveal">
+            <!-- Strategy Cards -->
+            <div class="space-y-4">
+                <div class="card-hover bg-white border border-slate-200 rounded-xl p-5 border-l-4 border-l-indigo-500">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0"><i data-lucide="shield" class="w-5 h-5 text-indigo-600"></i></div>
+                        <div><h4 class="font-bold text-slate-900">Macroeconomic Stability</h4><p class="text-sm text-slate-600 mt-1">CPI targeting at 4%, fiscal deficit buffers below 4.5% of GDP, strategic reserve management.</p></div>
+                    </div>
+                </div>
+                <div class="card-hover bg-white border border-slate-200 rounded-xl p-5 border-l-4 border-l-teal-500">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center shrink-0"><i data-lucide="cpu" class="w-5 h-5 text-teal-600"></i></div>
+                        <div><h4 class="font-bold text-slate-900">Microeconomic Efficiency</h4><p class="text-sm text-slate-600 mt-1">Logistics cost reduction to 9% of GDP, MSME credit deployment, digital payment rails expansion.</p></div>
+                    </div>
+                </div>
+                <div class="card-hover bg-white border border-slate-200 rounded-xl p-5 border-l-4 border-l-emerald-500">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0"><i data-lucide="ship" class="w-5 h-5 text-emerald-600"></i></div>
+                        <div><h4 class="font-bold text-slate-900">Export Expansion</h4><p class="text-sm text-slate-600 mt-1">Tech manufacturing via PLI schemes, new trade lines with Africa and ASEAN, $1T export target by 2030.</p></div>
+                    </div>
+                </div>
+                <div class="card-hover bg-white border border-slate-200 rounded-xl p-5 border-l-4 border-l-amber-500">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center shrink-0"><i data-lucide="gem" class="w-5 h-5 text-amber-600"></i></div>
+                        <div><h4 class="font-bold text-slate-900">Gold Reserve Strategy</h4><p class="text-sm text-slate-600 mt-1">Increase gold reserves to 12% of total reserves, sovereign gold bonds, hedging against USD volatility.</p></div>
+                    </div>
+                </div>
+                <div class="card-hover bg-white border border-slate-200 rounded-xl p-5 border-l-4 border-l-rose-500">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center shrink-0"><i data-lucide="percent" class="w-5 h-5 text-rose-600"></i></div>
+                        <div><h4 class="font-bold text-slate-900">Interest Rate Policy</h4><p class="text-sm text-slate-600 mt-1">Maintain real yield margins of 1.5-2% above CPI, attract FDI via stable rate corridor framework.</p></div>
+                    </div>
+                </div>
+                <div class="card-hover bg-white border border-slate-200 rounded-xl p-5 border-l-4 border-l-cyan-500">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-cyan-50 flex items-center justify-center shrink-0"><i data-lucide="building" class="w-5 h-5 text-cyan-600"></i></div>
+                        <div><h4 class="font-bold text-slate-900">Infrastructure Capital</h4><p class="text-sm text-slate-600 mt-1">Insurance premium routing into infra bonds, NaBFID deployment, $1.4T NIP pipeline execution.</p></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts -->
+            <div class="space-y-6">
+                <div class="bg-white border border-slate-200 rounded-xl p-6">
+                    <h3 class="text-base font-bold text-slate-700 mb-4">India Economic Scorecard (Radar)</h3>
+                    <canvas id="indiaRadar" height="200"></canvas>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-xl p-6">
+                    <h3 class="text-base font-bold text-slate-700 mb-4">India vs China vs USA — Comparative Metrics</h3>
+                    <canvas id="comparisonChart" height="150"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION: GLOBAL SOVEREIGN TABLE ==================== -->
+<section id="sovereign-table" class="py-16 px-4">
+    <div class="max-w-[1600px] mx-auto">
+        <div class="text-center mb-10 reveal">
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Global Sovereign Asset Strength & Reserve Weight Index</h2>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden reveal">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm" id="sovereign-tbl">
+                    <thead class="bg-slate-50 border-b border-slate-200">
+                        <tr>
+                            <th class="sort-header text-left px-4 py-3 font-semibold text-slate-700" data-col="0">Nation</th>
+                            <th class="sort-header text-left px-4 py-3 font-semibold text-slate-700" data-col="1">Currency Domain</th>
+                            <th class="sort-header text-left px-4 py-3 font-semibold text-slate-700" data-col="2">ISO Code</th>
+                            <th class="sort-header text-right px-4 py-3 font-semibold text-slate-700" data-col="3">Live Rate vs USD</th>
+                            <th class="sort-header text-right px-4 py-3 font-semibold text-slate-700" data-col="4">Macro Score (%)</th>
+                            <th class="sort-header text-left px-4 py-3 font-semibold text-slate-700" data-col="5">Debt Cycle Phase</th>
+                            <th class="sort-header text-left px-4 py-3 font-semibold text-slate-700" data-col="6">Recommendation</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sovereign-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="bg-slate-900 text-white py-10 px-4">
+    <div class="max-w-[1600px] mx-auto text-center">
+        <h3 class="text-xl font-bold mb-2" style="font-family:Georgia,serif;">SAIF FINANCE SYSTEM © 2026</h3>
+        <p class="text-slate-400 text-sm mb-3">Built on Ray Dalio's Economic Framework</p>
+        <p class="text-slate-400 text-sm">Saifuddin Farooqui | farooquimohammedsaifuddin@gmail.com | +91 8766696166</p>
+        <p class="text-slate-500 text-xs mt-4 max-w-lg mx-auto">Disclaimer: For educational and analytical purposes only. Not financial advice. Past performance does not guarantee future results.</p>
+    </div>
+</footer>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+// ===================== DATA STORE =====================
+const currencyData = {
+    KWD: { name: 'Kuwaiti Dinar', flag: '🇰🇼', baseRate: 0.31, rate: 0.31, change24h: 0 },
+    GBP: { name: 'British Pound', flag: '🇬🇧', baseRate: 0.75, rate: 0.75, change24h: 0 },
+    EUR: { name: 'Euro', flag: '🇪🇺', baseRate: 0.88, rate: 0.88, change24h: 0 },
+    USD: { name: 'US Dollar', flag: '🇺🇸', baseRate: 1.00, rate: 1.00, change24h: 0 },
+    SAR: { name: 'Saudi Riyal', flag: '🇸🇦', baseRate: 3.75, rate: 3.75, change24h: 0 },
+    ILS: { name: 'Israeli Shekel', flag: '🇮🇱', baseRate: 3.65, rate: 3.65, change24h: 0 },
+    CNY: { name: 'Chinese Yuan', flag: '🇨🇳', baseRate: 7.24, rate: 7.24, change24h: 0 },
+    INR: { name: 'Indian Rupee', flag: '🇮🇳', baseRate: 95.12, rate: 95.12, change24h: 0 },
+    JPY: { name: 'Japanese Yen', flag: '🇯🇵', baseRate: 162.70, rate: 162.70, change24h: 0 },
+    DEM: { name: 'Deutsche Mark', flag: '🇩🇪', baseRate: 1.72, rate: 1.72, change24h: 0 }
+};
+
+const nationData = {
+    'India': { eqPrice: 142.5, supplySlope: 1.2, demandSlope: -1.0, eqQty: 55, pressure: 'Demand-Pull Inflation', policy: 'Tighten Monetary Policy', demandIntercept: 200, supplyIntercept: 80 },
+    'USA': { eqPrice: 185.0, supplySlope: 0.9, demandSlope: -1.3, eqQty: 62, pressure: 'Stagflation Risk', policy: 'Fiscal Consolidation', demandIntercept: 260, supplyIntercept: 130 },
+    'China': { eqPrice: 128.0, supplySlope: 1.5, demandSlope: -0.8, eqQty: 70, pressure: 'Supply Glut', policy: 'Stimulate Demand', demandIntercept: 180, supplyIntercept: 50 },
+    'Japan': { eqPrice: 165.0, supplySlope: 0.7, demandSlope: -1.1, eqQty: 45, pressure: 'Deflationary Pressure', policy: 'Yield Curve Control', demandIntercept: 215, supplyIntercept: 135 },
+    'UK': { eqPrice: 155.0, supplySlope: 1.0, demandSlope: -1.2, eqQty: 50, pressure: 'Cost-Push Inflation', policy: 'Rate Hike Cycle', demandIntercept: 220, supplyIntercept: 105 },
+    'Eurozone': { eqPrice: 148.0, supplySlope: 1.1, demandSlope: -0.9, eqQty: 58, pressure: 'Balanced Growth', policy: 'Maintain Current Rates', demandIntercept: 200, supplyIntercept: 85 },
+    'Saudi Arabia': { eqPrice: 172.0, supplySlope: 0.6, demandSlope: -1.4, eqQty: 40, pressure: 'Supply Constraint', policy: 'Production Quota Ease', demandIntercept: 230, supplyIntercept: 150 },
+    'Kuwait': { eqPrice: 190.0, supplySlope: 0.5, demandSlope: -1.5, eqQty: 35, pressure: 'Premium Scarcity', policy: 'Reserve Accumulation', demandIntercept: 250, supplyIntercept: 175 }
+};
+
+const debtCycleData = [
+    { nation: '🇺🇸 USA', phase: 'Peak Bubble', position: 78, color: '#e11d48', insight: 'Elevated asset prices, rising debt-to-income ratios' },
+    { nation: '🇨🇳 China', phase: 'Deleveraging', position: 65, color: '#d97706', insight: 'Property sector unwinding, controlled credit contraction' },
+    { nation: '🇮🇳 India', phase: 'Early Expansion', position: 28, color: '#059669', insight: 'Credit growth healthy, demographics favorable' },
+    { nation: '🇯🇵 Japan', phase: 'Reflation', position: 88, color: '#7c3aed', insight: 'Decades post-bubble, yield curve control regime' },
+    { nation: '🇬🇧 UK', phase: 'Peak Bubble', position: 72, color: '#e11d48', insight: 'Housing market stretched, gilt market fragility' },
+    { nation: '🇪🇺 Eurozone', phase: 'Early Expansion', position: 35, color: '#059669', insight: 'Post-COVID recovery, manageable periphery debt' },
+    { nation: '🇸🇦 Saudi Arabia', phase: 'Early Expansion', position: 22, color: '#059669', insight: 'Vision 2030 investment cycle beginning' },
+    { nation: '🇰🇼 Kuwait', phase: 'Early Expansion', position: 18, color: '#059669', insight: 'Low debt, sovereign wealth buffer intact' }
+];
+
+const sovereignTableData = [
+    { nation: '🇮🇳 India', domain: 'South Asian Rupee Zone', iso: 'INR', score: 72, phase: 'Early Expansion', rec: 'ACCUMULATE' },
+    { nation: '🇺🇸 USA', domain: 'Global Reserve Currency', iso: 'USD', score: 65, phase: 'Peak Bubble', rec: 'HOLD' },
+    { nation: '🇨🇳 China', domain: 'East Asian Yuan Bloc', iso: 'CNY', score: 58, phase: 'Deleveraging', rec: 'HOLD' },
+    { nation: '🇯🇵 Japan', domain: 'Pacific Yen Zone', iso: 'JPY', score: 45, phase: 'Reflation', rec: 'DEVALUATION HAZARD' },
+    { nation: '🇬🇧 UK', domain: 'Sterling Commonwealth', iso: 'GBP', score: 60, phase: 'Peak Bubble', rec: 'HOLD' },
+    { nation: '🇪🇺 Eurozone', domain: 'European Monetary Union', iso: 'EUR', score: 62, phase: 'Early Expansion', rec: 'ACCUMULATE' },
+    { nation: '🇸🇦 Saudi Arabia', domain: 'GCC Riyal Peg', iso: 'SAR', score: 70, phase: 'Early Expansion', rec: 'ACCUMULATE' },
+    { nation: '🇰🇼 Kuwait', domain: 'GCC Dinar Premium', iso: 'KWD', score: 75, phase: 'Early Expansion', rec: 'ACCUMULATE' },
+    { nation: '🇮🇱 Israel', domain: 'Levant Shekel Zone', iso: 'ILS', score: 55, phase: 'Peak Bubble', rec: 'HOLD' },
+    { nation: '🇩🇪 Germany', domain: 'Eurozone Core', iso: 'DEM', score: 68, phase: 'Early Expansion', rec: 'ACCUMULATE' }
+];
+
+// ===================== KPI STRIP =====================
+function initKPIStrip() {
+    const kpis = [
+        { icon: 'gem', label: 'Gold $/oz', value: '$4,032.78', change: '+1.2%', up: true },
+        { icon: 'fuel', label: 'Brent Crude $/bbl', value: '$72.40', change: '-0.8%', up: false },
+        { icon: 'dollar-sign', label: 'USD Index', value: '104.2', change: '+0.3%', up: true },
+        { icon: 'trending-up', label: 'India GDP Growth', value: '6.8%', change: '+0.2%', up: true },
+        { icon: 'landmark', label: 'Global Debt/GDP', value: '336%', change: '+2.1%', up: false }
+    ];
+    const container = document.getElementById('kpi-strip');
+    container.innerHTML = kpis.map(k => `
+        <div class="card-hover bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
+                <i data-lucide="${k.icon}" class="w-5 h-5 text-indigo-600"></i>
+            </div>
+            <div>
+                <p class="text-xs text-slate-500">${k.label}</p>
+                <p class="text-lg font-bold text-slate-900 font-mono">${k.value}</p>
+                <span class="text-xs font-semibold ${k.up ? 'text-emerald-600' : 'text-rose-600'}">${k.change} ${k.up ? '↑' : '↓'}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ===================== TICKER =====================
+function initTicker() {
+    const container = document.getElementById('ticker-container');
+    const currencies = ['KWD','GBP','EUR','USD','SAR','CNY','INR','JPY'];
+    let html = '';
+    for (let i = 0; i < 2; i++) {
+        currencies.forEach(c => {
+            const d = currencyData[c];
+            html += `<span class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-mono" id="tick-${c}-${i}">
+                <span>${d.flag}</span><span class="font-semibold">${c}</span>
+                <span class="ticker-rate" data-currency="${c}">${d.rate.toFixed(4)}</span>
+            </span>`;
+        });
+    }
+    container.innerHTML = html;
+}
+
+function updateTicker() {
+    document.querySelectorAll('.ticker-rate').forEach(el => {
+        const code = el.dataset.currency;
+        el.textContent = currencyData[code].rate.toFixed(4);
+    });
+}
+
+// ===================== RATE SIMULATION =====================
+function driftRates() {
+    Object.keys(currencyData).forEach(code => {
+        if (code === 'USD') return;
+        const d = currencyData[code];
+        const drift = (Math.random() - 0.5) * 0.002 * d.baseRate;
+        d.rate = Math.max(d.baseRate * 0.95, Math.min(d.baseRate * 1.05, d.rate + drift));
+        d.change24h = ((d.rate - d.baseRate) / d.baseRate) * 100;
+    });
+    updateTicker();
+    updateRatesTable();
+}
+
+// ===================== RATES TABLE =====================
+function updateRatesTable() {
+    const tbody = document.getElementById('rates-tbody');
+    const codes = Object.keys(currencyData);
+    tbody.innerHTML = codes.map(code => {
+        const d = currencyData[code];
+        const isUp = d.change24h >= 0;
+        const bgClass = code === 'USD' ? '' : (isUp ? 'bg-emerald-50/50' : 'bg-rose-50/50');
+        return `<tr class="${bgClass} border-b border-slate-100 transition-colors">
+            <td class="py-2.5 px-1"><span class="mr-1">${d.flag}</span><span class="font-medium">${d.name}</span> <span class="text-slate-400 text-xs">${code}</span></td>
+            <td class="text-right py-2.5 font-mono font-semibold">${d.rate.toFixed(4)}</td>
+            <td class="text-right py-2.5 font-mono text-xs ${isUp ? 'text-emerald-600' : 'text-rose-600'}">${d.change24h >= 0 ? '+' : ''}${d.change24h.toFixed(3)}%</td>
+            <td class="text-center py-2.5">${isUp ? '<span class="text-emerald-600">↑</span>' : '<span class="text-rose-600">↓</span>'}</td>
+        </tr>`;
+    }).join('');
+}
+
+// ===================== CURRENCY CONVERTER =====================
+function convertCurrency() {
+    const from = document.getElementById('conv-from').value;
+    const to = document.getElementById('conv-to').value;
+    const amount = parseFloat(document.getElementById('conv-amount').value) || 0;
+    const fromRate = currencyData[from].rate;
+    const toRate = currencyData[to].rate;
+    const usdAmount = amount / fromRate;
+    const result = usdAmount * toRate;
+    document.getElementById('conv-result').textContent = result.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + to;
+}
+
+// ===================== DEBT CYCLE TRACKER =====================
+function initCycleTracker() {
+    const container = document.getElementById('cycle-tracker');
+    container.innerHTML = debtCycleData.map(d => `
+        <div class="flex items-center gap-4 py-2">
+            <span class="w-32 shrink-0 font-semibold text-sm">${d.nation}</span>
+            <span class="shrink-0 px-2.5 py-0.5 rounded-full text-xs font-semibold text-white" style="background:${d.color}">${d.phase}</span>
+            <div class="flex-1">
+                <div class="cycle-bar">
+                    <div class="cycle-fill" style="width:${d.position}%; background:${d.color}"></div>
+                </div>
+            </div>
+            <span class="text-xs text-slate-500 w-8 text-right font-mono">${d.position}%</span>
+            <span class="text-xs text-slate-500 hidden md:inline w-64">${d.insight}</span>
+        </div>
+    `).join('');
+}
+
+// ===================== SUPPLY & DEMAND CHART =====================
+let sdChart = null;
+function initSupplyDemandChart() {
+    const ctx = document.getElementById('supplyDemandChart').getContext('2d');
+    sdChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: [], datasets: [] },
+        options: {
+            responsive: true,
+            interaction: { intersect: false },
+            plugins: { legend: { position: 'top' }, tooltip: { mode: 'index' } },
+            scales: {
+                x: { title: { display: true, text: 'Quantity (units)' } },
+                y: { title: { display: true, text: 'Price (USD index)' } }
+            },
+            animation: { duration: 600 }
+        }
+    });
+    selectNation('India');
+}
+
+function selectNation(nation) {
+    // Update button styles
+    document.querySelectorAll('.nation-btn').forEach(btn => {
+        if (btn.textContent.includes(nation) || (nation === 'Eurozone' && btn.textContent.includes('Eurozone'))) {
+            btn.className = 'nation-btn px-4 py-2 rounded-full text-sm font-medium bg-indigo-600 text-white transition-all';
+        } else {
+            btn.className = 'nation-btn px-4 py-2 rounded-full text-sm font-medium bg-slate-100 text-slate-700 transition-all hover:bg-slate-200';
+        }
+    });
+    
+    const nd = nationData[nation];
+    const labels = [];
+    const supplyData = [];
+    const demandData = [];
+    
+    for (let q = 10; q <= 100; q += 5) {
+        labels.push(q);
+        supplyData.push(nd.supplyIntercept + nd.supplySlope * q);
+        demandData.push(nd.demandIntercept + nd.demandSlope * q);
+    }
+    
+    sdChart.data.labels = labels;
+    sdChart.data.datasets = [
+        {
+            label: 'Supply',
+            data: supplyData,
+            borderColor: '#0d9488',
+            backgroundColor: 'rgba(13,148,136,0.1)',
+            tension: 0.3,
+            fill: false,
+            borderWidth: 3,
+            pointRadius: 0
+        },
+        {
+            label: 'Demand',
+            data: demandData,
+            borderColor: '#e11d48',
+            backgroundColor: 'rgba(225,29,72,0.1)',
+            tension: 0.3,
+            fill: false,
+            borderWidth: 3,
+            pointRadius: 0
+        },
+        {
+            label: 'Equilibrium',
+            data: labels.map(q => q === nd.eqQty ? nd.eqPrice : null),
+            borderColor: '#4f46e5',
+            backgroundColor: '#4f46e5',
+            pointRadius: labels.map(q => q === nd.eqQty ? 8 : 0),
+            pointStyle: 'circle',
+            showLine: false
+        }
+    ];
+    sdChart.update();
+    
+    document.getElementById('eq-price').textContent = '$' + nd.eqPrice.toFixed(2);
+    document.getElementById('market-pressure').textContent = nd.pressure;
+    document.getElementById('policy-rec').textContent = nd.policy;
+}
+
+// ===================== DCF CALCULATOR =====================
+let dcfChart = null;
+function initDCFChart() {
+    const ctx = document.getElementById('dcfChart').getContext('2d');
+    dcfChart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: [], datasets: [] },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'top' } },
+            scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'K' } } }
+        }
+    });
+    calculateDCF();
+}
+
+function calculateDCF() {
+    const fcf = parseFloat(document.getElementById('dcf-fcf').value) || 0;
+    const growth = (parseFloat(document.getElementById('dcf-growth').value) || 0) / 100;
+    const terminal = (parseFloat(document.getElementById('dcf-terminal').value) || 0) / 100;
+    const wacc = (parseFloat(document.getElementById('dcf-wacc').value) || 1) / 100;
+    const years = parseInt(document.getElementById('dcf-years').value) || 5;
+    
+    let tbody = '';
+    let pvSum = 0;
+    const pvArr = [];
+    const labels = [];
+    
+    for (let y = 1; y <= years; y++) {
+        const yearFCF = fcf * Math.pow(1 + growth, y);
+        const df = Math.pow(1 + wacc, y);
+        const pv = yearFCF / df;
+        pvSum += pv;
+        pvArr.push(pv);
+        labels.push('Y' + y);
+        tbody += `<tr class="border-b border-slate-100">
+            <td class="py-2 font-medium">Year ${y}</td>
+            <td class="text-right py-2 font-mono">$${yearFCF.toLocaleString('en-US',{maximumFractionDigits:0})}</td>
+            <td class="text-right py-2 font-mono">${(1/df).toFixed(4)}</td>
+            <td class="text-right py-2 font-mono font-semibold">$${pv.toLocaleString('en-US',{maximumFractionDigits:0})}</td>
+        </tr>`;
+    }
+    
+    const lastFCF = fcf * Math.pow(1 + growth, years);
+    const tv = (lastFCF * (1 + terminal)) / (wacc - terminal);
+    const pvTV = tv / Math.pow(1 + wacc, years);
+    const ev = pvSum + pvTV;
+    
+    document.getElementById('dcf-tbody').innerHTML = tbody;
+    document.getElementById('dcf-tv').textContent = '$' + tv.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    document.getElementById('dcf-pvtv').textContent = '$' + pvTV.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    document.getElementById('dcf-ev').textContent = '$' + ev.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    
+    // Update chart
+    labels.push('Terminal');
+    pvArr.push(pvTV);
+    dcfChart.data.labels = labels;
+    dcfChart.data.datasets = [{
+        label: 'Present Value',
+        data: pvArr,
+        backgroundColor: labels.map((_, i) => i === labels.length - 1 ? '#0d9488' : '#4f46e5'),
+        borderRadius: 4
+    }];
+    dcfChart.update();
+}
+
+// ===================== FORECAST CHARTS =====================
+function initForecastCharts() {
+    // Currency forecast
+    const quarters = ['Q1 2026','Q2 2026','Q3 2026','Q4 2026','Q1 2027','Q2 2027','Q3 2027','Q4 2027'];
+    const genForecast = (base, trend, vol) => quarters.map((_, i) => +(base + trend * i + (Math.random() - 0.5) * vol).toFixed(2));
+    
+    const ctx1 = document.getElementById('forecastChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'line',
+        data: {
+            labels: quarters,
+            datasets: [
+                { label: 'INR', data: genForecast(95.12, 0.8, 2), borderColor: '#4f46e5', tension: 0.3, borderWidth: 2, pointRadius: 3 },
+                { label: 'JPY', data: genForecast(162.7, 1.2, 4), borderColor: '#e11d48', tension: 0.3, borderWidth: 2, pointRadius: 3 },
+                { label: 'EUR', data: genForecast(0.88, -0.01, 0.03), borderColor: '#059669', tension: 0.3, borderWidth: 2, pointRadius: 3, yAxisID: 'y1' },
+                { label: 'GBP', data: genForecast(0.75, -0.005, 0.02), borderColor: '#d97706', tension: 0.3, borderWidth: 2, pointRadius: 3, yAxisID: 'y1' },
+                { label: 'CNY', data: genForecast(7.24, 0.05, 0.2), borderColor: '#7c3aed', tension: 0.3, borderWidth: 2, pointRadius: 3 }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            plugins: { legend: { position: 'top' } },
+            scales: {
+                y: { position: 'left', title: { display: true, text: 'INR / JPY / CNY per USD' } },
+                y1: { position: 'right', title: { display: true, text: 'EUR / GBP per USD' }, grid: { drawOnChartArea: false } }
+            }
+        }
+    });
+    
+    // Macro score chart
+    const ctx2 = document.getElementById('macroScoreChart').getContext('2d');
+    const macroScores = [75, 62, 65, 58, 45, 60, 70, 68, 55, 72];
+    const macroColors = macroScores.map(s => s >= 70 ? '#059669' : s >= 55 ? '#d97706' : '#e11d48');
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: ['KWD','GBP','EUR','USD','JPY','UK','SAR','DEM','ILS','INR'],
+            datasets: [{ label: 'Macro Score', data: macroScores, backgroundColor: macroColors, borderRadius: 4 }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: 'Score (0-100)' } } }
+        }
+    });
+}
+
+// ===================== INDIA CHARTS =====================
+function initIndiaCharts() {
+    // Radar
+    const ctx1 = document.getElementById('indiaRadar').getContext('2d');
+    new Chart(ctx1, {
+        type: 'radar',
+        data: {
+            labels: ['Inflation Control','Trade Balance','Currency Strength','Debt Management','GDP Growth','FDI Inflows','Reserve Adequacy'],
+            datasets: [{
+                label: 'India',
+                data: [72, 55, 60, 75, 85, 68, 70],
+                borderColor: '#4f46e5',
+                backgroundColor: 'rgba(79,70,229,0.15)',
+                borderWidth: 2,
+                pointBackgroundColor: '#4f46e5'
+            }]
+        },
+        options: { responsive: true, scales: { r: { beginAtZero: true, max: 100 } }, plugins: { legend: { position: 'top' } } }
+    });
+    
+    // Comparison bar
+    const ctx2 = document.getElementById('comparisonChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: ['Inflation Control','Trade Balance','Currency Strength','Debt Mgmt','GDP Growth','FDI Inflows','Reserve Adequacy'],
+            datasets: [
+                { label: '🇮🇳 India', data: [72, 55, 60, 75, 85, 68, 70], backgroundColor: '#4f46e5', borderRadius: 3 },
+                { label: '🇨🇳 China', data: [68, 72, 65, 50, 52, 75, 82], backgroundColor: '#e11d48', borderRadius: 3 },
+                { label: '🇺🇸 USA', data: [58, 40, 85, 45, 28, 80, 90], backgroundColor: '#059669', borderRadius: 3 }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'top' } },
+            scales: { y: { beginAtZero: true, max: 100 } }
+        }
+    });
+}
+
+// ===================== SOVEREIGN TABLE =====================
+function initSovereignTable() {
+    renderSovereignTable();
+    document.querySelectorAll('.sort-header').forEach(th => {
+        th.addEventListener('click', () => sortSovereignTable(parseInt(th.dataset.col)));
+    });
+}
+
+let sortCol = 4, sortAsc = false;
+function sortSovereignTable(col) {
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    renderSovereignTable();
+}
+
+function renderSovereignTable() {
+    const sorted = [...sovereignTableData].sort((a, b) => {
+        const keys = ['nation','domain','iso','rate','score','phase','rec'];
+        const key = keys[sortCol];
+        let va = key === 'rate' ? currencyData[a.iso]?.rate || 0 : (key === 'score' ? a.score : a[key]);
+        let vb = key === 'rate' ? currencyData[b.iso]?.rate || 0 : (key === 'score' ? b.score : b[key]);
+        if (typeof va === 'string') return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+        return sortAsc ? va - vb : vb - va;
+    });
+    
+    const tbody = document.getElementById('sovereign-tbody');
+    tbody.innerHTML = sorted.map((d, i) => {
+        const rate = currencyData[d.iso]?.rate || 0;
+        const recColor = d.rec === 'ACCUMULATE' ? 'bg-emerald-100 text-emerald-800' : d.rec === 'HOLD' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800';
+        return `<tr class="${i % 2 === 0 ? 'bg-white' : 'bg-slate-50'} hover:bg-indigo-50 transition-colors border-b border-slate-100">
+            <td class="px-4 py-3 font-medium">${d.nation}</td>
+            <td class="px-4 py-3 text-slate-600">${d.domain}</td>
+            <td class="px-4 py-3 font-mono">${d.iso}</td>
+            <td class="px-4 py-3 text-right font-mono font-semibold">${rate.toFixed(4)}</td>
+            <td class="px-4 py-3 text-right font-mono font-bold">${d.score}%</td>
+            <td class="px-4 py-3"><span class="text-xs">${d.phase}</span></td>
+            <td class="px-4 py-3"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${recColor}">${d.rec}</span></td>
+        </tr>`;
+    }).join('');
+}
+
+// ===================== SCROLL NAVIGATION =====================
+function scrollToSection(id) {
+    const el = document.getElementById(id);
+    if (el) {
+        const offset = 140;
+        const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+        window.scrollTo({ top, behavior: 'smooth' });
+    }
+    // Update tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('tab-active');
+        btn.classList.add('tab-inactive');
+    });
+    event.currentTarget.classList.remove('tab-inactive');
+    event.currentTarget.classList.add('tab-active');
+}
+
+// ===================== SCROLL REVEAL =====================
+function initScrollReveal() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+}
+
+// ===================== INIT =====================
+document.addEventListener('DOMContentLoaded', () => {
+    initKPIStrip();
+    initTicker();
+    initCycleTracker();
+    initSupplyDemandChart();
+    initDCFChart();
+    initForecastCharts();
+    initIndiaCharts();
+    initSovereignTable();
+    updateRatesTable();
+    initScrollReveal();
+    
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
+    // Start rate simulation
+    setInterval(driftRates, 2000);
+    
+    // Initial conversion
+    convertCurrency();
+});
+</script>
+
+<!--
+==================== DEPLOYMENT INSTRUCTIONS ====================
+
+1. GITHUB PAGES (Free)
+   - Create a new repository on GitHub (e.g., "saif-finance-system")
+   - Upload this index.html file to the repository root
+   - Go to Settings > Pages
+   - Under "Source", select "Deploy from a branch"
+   - Select "main" branch and "/ (root)" folder
+   - Click Save
+   - Your site will be live at: https://yourusername.github.io/saif-finance-system/
+
+2. NETLIFY DROP (Free, Drag & Drop)
+   - Go to https://app.netlify.com/drop
+   - Drag and drop the folder containing this index.html file
+   - Netlify will automatically deploy and give you a unique URL
+   - Optionally configure a custom domain in Site Settings > Domain Management
+   - Zero configuration needed — works instantly
+
+3. VERCEL (Free)
+   - Install Vercel CLI: npm install -g vercel
+   - Navigate to the folder containing index.html
+   - Run: vercel
+   - Follow the prompts (select your account, project name)
+   - Vercel will deploy and provide a .vercel.app URL
+   - Alternatively, connect your GitHub repo at https://vercel.com/new
+   - Every push to main will auto-deploy
+
+==============================================================
+-->
+</body>
+</html>
